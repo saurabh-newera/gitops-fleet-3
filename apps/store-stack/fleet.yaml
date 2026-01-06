@@ -1,0 +1,150 @@
+# Fleet Configuration for Store Stack
+# This single fleet.yaml manages all clusters and versions using targetCustomizations
+
+defaultNamespace: default
+
+# Base Helm configuration pointing to your chart repository
+helm:
+  repo: https://saurabh-newera.github.io/helm-charts
+  chart: store-stack
+  # Note: version is specified per targetCustomization below
+
+# Target Customizations: Deploy different versions to different clusters
+targetCustomizations:
+  # =========================================================
+  # Release Train v1.4 - Stable Release
+  # Matches all clusters with label: store-version=v1.4
+  # =========================================================
+  - name: train-v1.4
+    clusterSelector:
+      matchLabels:
+        store-version: "v1.4"
+    
+    helm:
+      # A. Define the Chart Version
+      version: 1.4.0
+      
+      # B. Load version-specific base values
+      valuesFiles:
+        - versions/v1.4.0.yaml
+      
+      # C. Inject cluster-specific values from labels
+      values:
+        # NGINX Service - All config from cluster labels
+        nginx-service:
+          replicaCount: "${ .ClusterLabels.nginx-replicas }"
+          
+          service:
+            type: "${ .ClusterLabels.nginx-service-type }"
+            loadBalancerIP: "${ .ClusterLabels.nginx-lb-ip }"
+            port: 80
+            targetPort: 80
+          
+          resources:
+            limits:
+              cpu: "${ .ClusterLabels.nginx-cpu-limit }"
+              memory: "${ .ClusterLabels.nginx-memory-limit }"
+            requests:
+              cpu: "${ .ClusterLabels.nginx-cpu-request }"
+              memory: "${ .ClusterLabels.nginx-memory-request }"
+          
+          env:
+            APP_ENV: "${ .ClusterLabels.nginx-app-env }"
+        
+        # HTTPBIN Service - All config from cluster labels
+        httpbin-service:
+          replicaCount: "${ .ClusterLabels.httpbin-replicas }"
+          
+          service:
+            type: "${ .ClusterLabels.httpbin-service-type }"
+            nodePort: "${ .ClusterLabels.httpbin-node-port }"
+          
+          env:
+            APP_ENV: "${ .ClusterLabels.httpbin-app-env }"
+            LOG_LEVEL: "${ .ClusterLabels.httpbin-log-level }"
+        
+        # Redis Service - All config from cluster labels
+        redis-service:
+          replicaCount: "${ .ClusterLabels.redis-replicas }"
+          
+          env:
+            REDIS_MAXMEMORY: "${ .ClusterLabels.redis-maxmemory }"
+        
+        # Global metadata
+        global:
+          clusterName: "${ .ClusterName }"
+          environment: "${ .ClusterLabels.environment }"
+          location: "${ .ClusterLabels.location }"
+
+  # =========================================================
+  # Release Train v1.5 - Latest Release
+  # Matches all clusters with label: store-version=v1.5
+  # =========================================================
+  - name: train-v1.5
+    clusterSelector:
+      matchLabels:
+        store-version: "v1.5"
+    
+    helm:
+      # A. Define the Chart Version
+      version: 1.5.0
+      
+      # B. Load version-specific base values
+      valuesFiles:
+        - versions/v1.5.0.yaml
+      
+      # C. Inject cluster-specific values from labels
+      values:
+        # NGINX Service - All config from cluster labels
+        nginx-service:
+          replicaCount: "${ .ClusterLabels.nginx-replicas }"
+          
+          service:
+            type: "${ .ClusterLabels.nginx-service-type }"
+            loadBalancerIP: "${ .ClusterLabels.nginx-lb-ip }"
+            port: 80
+            targetPort: 80
+          
+          resources:
+            limits:
+              cpu: "${ .ClusterLabels.nginx-cpu-limit }"
+              memory: "${ .ClusterLabels.nginx-memory-limit }"
+            requests:
+              cpu: "${ .ClusterLabels.nginx-cpu-request }"
+              memory: "${ .ClusterLabels.nginx-memory-request }"
+          
+          env:
+            APP_ENV: "${ .ClusterLabels.nginx-app-env }"
+        
+        # HTTPBIN Service - All config from cluster labels
+        httpbin-service:
+          replicaCount: "${ .ClusterLabels.httpbin-replicas }"
+          
+          service:
+            type: "${ .ClusterLabels.httpbin-service-type }"
+            nodePort: "${ .ClusterLabels.httpbin-node-port }"
+          
+          env:
+            APP_ENV: "${ .ClusterLabels.httpbin-app-env }"
+            LOG_LEVEL: "${ .ClusterLabels.httpbin-log-level }"
+        
+        # Redis Service - All config from cluster labels
+        redis-service:
+          replicaCount: "${ .ClusterLabels.redis-replicas }"
+          
+          env:
+            REDIS_MAXMEMORY: "${ .ClusterLabels.redis-maxmemory }"
+        
+        # Global metadata
+        global:
+          clusterName: "${ .ClusterName }"
+          environment: "${ .ClusterLabels.environment }"
+          location: "${ .ClusterLabels.location }"
+
+# Diff Configuration (optional)
+diff:
+  comparePatches:
+    - apiVersion: apps/v1
+      kind: Deployment
+      operations:
+        - {"op": "remove", "path": "/spec/template/metadata/annotations/cattle.io~1timestamp"}

@@ -1,0 +1,76 @@
+# Version-specific values for store-stack v1.5.0
+# These values override the defaults in the store-stack Helm chart
+
+nginx-service:
+  image:
+    repository: nginx
+    tag: "1.27.3"  # Newer version for v1.5
+    pullPolicy: IfNotPresent
+  
+  # Default replica count (can be overridden by cluster labels)
+  replicaCount: 1
+  
+  resources:
+    limits:
+      cpu: 150m  # Increased resources for v1.5
+      memory: 192Mi
+    requests:
+      cpu: 75m
+      memory: 96Mi
+  
+  env:
+    NGINX_HOST: localhost
+    NGINX_PORT: "80"
+    APP_ENV: production
+    APP_VERSION: "v1.5.0"
+    ENABLE_CACHING: "true"  # New feature in v1.5
+
+redis-service:
+  image:
+    repository: redis
+    tag: "7.2.4"  # Newer version for v1.5
+    pullPolicy: IfNotPresent
+  
+  replicaCount: 1
+  
+  resources:
+    limits:
+      cpu: 250m  # Increased resources for v1.5
+      memory: 384Mi
+    requests:
+      cpu: 125m
+      memory: 192Mi
+  
+  env:
+    REDIS_MAXMEMORY: "256mb"  # Increased memory for v1.5
+    REDIS_MAXMEMORY_POLICY: "allkeys-lru"
+    REDIS_LOGLEVEL: "notice"
+  
+  redisArgs:
+    - "--maxmemory"
+    - "256mb"
+    - "--maxmemory-policy"
+    - "allkeys-lru"
+
+httpbin-service:
+  image:
+    repository: kennethreitz/httpbin
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  
+  replicaCount: 1
+  
+  resources:
+    limits:
+      cpu: 150m
+      memory: 192Mi
+    requests:
+      cpu: 75m
+      memory: 96Mi
+  
+  env:
+    GUNICORN_CMD_ARGS: "--capture-output --error-logfile - --access-logfile - --access-logformat '%(h)s %(t)s %(r)s %(s)s'"
+    APP_ENV: production
+    LOG_LEVEL: info
+    APP_VERSION: "v1.5.0"
+    ENABLE_METRICS: "true"  # New feature in v1.5

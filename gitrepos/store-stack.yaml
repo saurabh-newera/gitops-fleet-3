@@ -1,0 +1,23 @@
+# GitOps Configuration - Store Stack GitRepo
+
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: store-stack
+  namespace: fleet-default
+spec:
+  # Repository containing Fleet configuration
+  repo: https://github.com/your-org/gitops-fleet-3
+  branch: main
+  
+  # Paths to scan for fleet.yaml files
+  paths:
+    - apps/store-stack
+  
+  # Polling interval
+  pollingInterval: 1m
+  
+  # Target all clusters (filtering happens in fleet.yaml via clusterSelector)
+  targets:
+    - name: all-clusters
+      clusterSelector: {}

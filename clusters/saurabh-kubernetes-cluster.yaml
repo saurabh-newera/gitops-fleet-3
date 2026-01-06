@@ -1,0 +1,37 @@
+apiVersion: fleet.cattle.io/v1alpha1
+kind: Cluster
+metadata:
+  name: saurabh-kubernetes-cluster
+  namespace: fleet-default
+  labels:
+    # Version selector for Fleet targetCustomizations
+    store-version: "v1.4"
+    
+    # Additional metadata
+    environment: production
+    location: home-lab
+    region: us-east-1
+    
+    # ===== NGINX Service Configuration =====
+    nginx-replicas: "2"
+    nginx-service-type: "LoadBalancer"
+    nginx-lb-ip: "10.100.10.1"
+    nginx-cpu-limit: "320m"
+    nginx-memory-limit: "356Mi"
+    nginx-cpu-request: "95m"
+    nginx-memory-request: "94Mi"
+    nginx-app-env: "production"
+    
+    # ===== HTTPBIN Service Configuration =====
+    httpbin-replicas: "2"
+    httpbin-service-type: "NodePort"
+    httpbin-node-port: "30080"
+    httpbin-app-env: "production"
+    httpbin-log-level: "info"
+    
+    # ===== Redis Service Configuration =====
+    redis-replicas: "1"
+    redis-maxmemory: "256mb"
+spec:
+  # Cluster connection details would go here
+  # This is a Fleet Cluster resource that connects to your actual K8s cluster

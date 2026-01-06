@@ -1,0 +1,4 @@
+defaultNamespace: fleet-default
+targetCustomizations:
+  - name: local
+    clusterName: "local" # Forces these objects to be created on the Manager

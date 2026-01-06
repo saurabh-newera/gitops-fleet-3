@@ -1,0 +1,74 @@
+# Version-specific values for store-stack v1.4.0
+# These values override the defaults in the store-stack Helm chart
+
+nginx-service:
+  image:
+    repository: nginx
+    tag: "1.27.0"
+    pullPolicy: IfNotPresent
+  
+  # Default replica count (can be overridden by cluster labels)
+  replicaCount: 1
+  
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  env:
+    NGINX_HOST: localhost
+    NGINX_PORT: "80"
+    APP_ENV: production
+    APP_VERSION: "v1.4.0"
+
+redis-service:
+  image:
+    repository: redis
+    tag: "7.2.0"
+    pullPolicy: IfNotPresent
+  
+  replicaCount: 1
+  
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  env:
+    REDIS_MAXMEMORY: "128mb"
+    REDIS_MAXMEMORY_POLICY: "allkeys-lru"
+    REDIS_LOGLEVEL: "notice"
+  
+  redisArgs:
+    - "--maxmemory"
+    - "128mb"
+    - "--maxmemory-policy"
+    - "allkeys-lru"
+
+httpbin-service:
+  image:
+    repository: kennethreitz/httpbin
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  
+  replicaCount: 1
+  
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+  
+  env:
+    GUNICORN_CMD_ARGS: "--capture-output --error-logfile - --access-logfile - --access-logformat '%(h)s %(t)s %(r)s %(s)s'"
+    APP_ENV: production
+    LOG_LEVEL: info
+    APP_VERSION: "v1.4.0"
